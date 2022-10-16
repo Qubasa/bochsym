@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"rust-analyzer.checkOnSave.allTargets": true,
+		"rust-analyzer.checkOnSave.command": "clippy",
+		"rust-analyzer.checkOnSave.enable": true,
+		"rust-analyzer.trace.extension": false,
+		"rust-analyzer.diagnostics.experimental.enable": false,
+		"rust-analyzer.diagnostics.enable": true,
+		"rust-analyzer.inlayHints.typeHints.enable": false,
+		"rust-analyzer.inlayHints.lifetimeElisionHints.useParameterNames": false,
+		"rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
+		"rust-analyzer.inlayHints.closureReturnTypeHints.enable": false,
+		"rust-analyzer.lens.references.adt.enable": false,
+		"rust-analyzer.lens.references.method.enable": false,
+		"rust-analyzer.lens.references.enumVariant.enable": false,
+		"rust-analyzer.lens.references.trait.enable": false,
+		"rust-analyzer.restartServerOnConfigChange": true,
+		"rust-analyzer.typing.autoClosingAngleBrackets.enable": true,
+		"rust-analyzer.semanticHighlighting.punctuation.separate.macro.bang": false,
+		"rust-analyzer.semanticHighlighting.punctuation.specialization.enable": false,
+		"rust-analyzer.semanticHighlighting.punctuation.enable": false,
+		"rust-analyzer.lens.run.enable": true,
+		"rust-analyzer.lens.implementations.enable": false,
+
+	}
+}
