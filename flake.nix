@@ -34,13 +34,7 @@
 
         buildDeps = with pkgs; [
           myrust
-          zlib.out
-          xorriso
-          grub2
-        ]  ++ (with pkgs.llvmPackages_latest; [
-          lld
-          llvm
-        ]);
+        ];
       in
       rec {
         packages.default = naersk-lib.buildPackage ./.;
