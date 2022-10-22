@@ -7,8 +7,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::ExitCode;
 use symbolic::common::{ByteView, Name};
-use symbolic::debuginfo::Archive;
-use symbolic::demangle::{Demangle, DemangleOptions};
+use symbolic::{debuginfo::{Object}, demangle::{Demangle, DemangleOptions}};
 
 pub fn create_cli() -> clap::App<'static> {
     let app = clap::Command::new("bochsym")
@@ -65,13 +64,22 @@ pub fn parse_matches(matches: &ArgMatches) -> Result<(), ExitCode> {
 
     let outfile: &PathBuf = matches.get_one("out").unwrap();
 
-    parse_symfiles(symfiles, outfile);
+    let mut file = std::fs::File::create(outfile).expect("Couldn't create out file");
+    let map = parse_symfiles(symfiles);
+
+    for (address, name) in map {
+        let data = format!("{:x} {}\n", address, name);
+        file.write_all(data.as_bytes()).expect("Failed to write to file");
+    }
 
     Ok(())
 }
+use std::collections::HashMap;
 
-pub fn parse_symfiles(symfiles: Vec<&std::path::PathBuf>, outfile: &std::path::Path) {
-    let mut file = std::fs::File::create(outfile).expect("Couldn't create out file");
+
+
+pub fn parse_symfiles(symfiles: Vec<&std::path::PathBuf>) -> HashMap<u64, String> {
+    let mut map = HashMap::new();
 
     for symfile in symfiles {
         assert!(
@@ -79,19 +87,19 @@ pub fn parse_symfiles(symfiles: Vec<&std::path::PathBuf>, outfile: &std::path::P
             "Symfile not found: {}",
             symfile.display()
         );
-
         let buffer = ByteView::open(symfile).unwrap();
 
-        let archive = Archive::parse(&buffer).unwrap();
-        info!("File format: {}", archive.file_format());
+        let object = Object::parse(&buffer).unwrap();
+        debug!("File format: {}", object.file_format());
 
-        for sym in archive.object_by_index(0).unwrap().unwrap().symbols() {
-            let symname = Name::from(sym.name.unwrap());
-            let demangled_sym = symname.try_demangle(DemangleOptions::complete());
+        for sym in object.symbols() {
+            let symname = Name::from(sym.name().unwrap());
+            let demangled_sym = symname.try_demangle(DemangleOptions::complete()).to_string();
             let data = format!("{:x} {}\n", sym.address, demangled_sym);
             trace!("{}", data);
-            file.write_all(data.as_bytes())
-                .expect("Failed to write data to out file");
+            map.insert(sym.address + object.load_address(), demangled_sym);
         }
     }
+    map
 }
+

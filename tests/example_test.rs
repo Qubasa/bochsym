@@ -19,11 +19,10 @@ fn print_help() {
 fn parse_sym() {
     let res = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("resources");
 
-    let app = create_cli();
-    let symfile = res.join("bootloader.sym");
-    let cmd = vec!["bochsym", "--symfile", symfile.to_str().unwrap(), "-o", "resources/bootloader.sym.bochs"];
+    let symfile:PathBuf = PathBuf::from(res.join("bootloader.sym").to_str().unwrap());
+    let map = parse_symfiles(vec![&symfile]);
 
-    let matches = app.try_get_matches_from(cmd).unwrap();
-
-    bochsym::parse_matches(&matches).expect("Failed to execute test");
+    let bootloader_main = map.into_iter().find(|x| x.1 == "bootloader_main").unwrap();
+    assert!(bootloader_main.0 == 0x1076a0, "bootloader_main should be 0x1076a0 but is {:#x}", bootloader_main.0);
 }
+
